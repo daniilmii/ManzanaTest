@@ -47,8 +47,10 @@ namespace CheckMonitoringService
         internal void ConsoleDebug(string[] args)
         {
             this.OnStart(args);
+            Console.WriteLine("Press Enter to stop windows service ...");
             Console.ReadLine();
             this.OnStop();
+            Environment.Exit(0);
         }
         protected override void OnStart(string[] args)
         {
@@ -127,8 +129,6 @@ namespace CheckMonitoringService
 
         public void MonitoringDirectory()
         {
-            if (Directory.Exists(Configurations.CurrentConfig.CheckFolderPath))
-            {
                 Logger.Log.Error(String.Format("Start monitoring directory {0} ...", Configurations.CurrentConfig.CheckFolderPath));
                 while (true)
                 {
@@ -140,14 +140,6 @@ namespace CheckMonitoringService
                     }
                     Thread.Sleep(1000);
                 }
-            }
-            else 
-            {
-                Logger.Log.Error(String.Format("Directory for monitoring not found: {0} , ", Configurations.CurrentConfig.CheckFolderPath));
-                Environment.Exit(0);
-            }
-              
-
         }
         private static string UniqueFilePath(string folderPath, string filefullName)
         {
@@ -164,7 +156,8 @@ namespace CheckMonitoringService
 
                     CheckEntity check = (SerializeHandler.DeserializeFile<CheckEntity>(fullPath));
 
-                    //RequestHandler.SendRequest(Configurations.CurrentConfig.HostIp, Configurations.CurrentConfig.HostPort, "/PostCheck", check);
+                    RequestHandler.SendRequest(Configurations.CurrentConfig.HostIp, Configurations.CurrentConfig.HostPort, "/PostCheck", check);
+
                     File.Move(fullPath, UniqueFilePath(Configurations.CurrentConfig.CompleteFolderPath, fileName));
 
 

@@ -28,8 +28,8 @@ namespace CheckServiceWCF
         void PostCheck();
 
         [OperationContract]
-        [WebGet(UriTemplate ="/GetChecks/{id}" )]
-        string GetChecks(string id);
+        [WebGet(UriTemplate ="/GetChecks/{size}" )]
+        string GetChecks(string size);
 
         
     }
@@ -48,7 +48,7 @@ namespace CheckServiceWCF
             Configurations.Configuration = configuration;
             Configurations.ConfigLoader();
           
-            Uri baseAddress = new Uri("http://localhost:5778");
+            Uri baseAddress = new Uri(String.Format("http://{0}:{1}", Configurations.CurrentConfig.HostIp, Configurations.CurrentConfig.HostPort));
 
             
             using (ServiceHost host = new ServiceHost(typeof(CheckService), baseAddress))

@@ -12,7 +12,9 @@ namespace CheckServiceWCF.Entities
             
         }
         public string ConnectionString { get; set; }
-      
+        public string HostIp { get; set; }
+        public string HostPort { get; set; }
+
 
     }
 }

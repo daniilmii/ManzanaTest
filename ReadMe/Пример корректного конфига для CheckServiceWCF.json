@@ -1,0 +1,6 @@
+{
+	"ConnectionString" : "data source=some_server;initial catalog=some_db;integrated security=SSPI;Application Name=TestApp"
+}
+
+
+

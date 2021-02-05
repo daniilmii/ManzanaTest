@@ -35,14 +35,14 @@ namespace CheckServiceWCF
             Console.WriteLine(String.Format("№" + ++filesCounter + " - Recieved Json "));
         }
 
-        public string GetChecks(string strId)
+        public string GetChecks(string size)
         {
             CheckEntityList checkList = null;
-            if (Int32.TryParse(strId, out int id))
+            if (Int32.TryParse(size, out int sizeInt))
             {
                 checkList = new CheckEntityList();
 
-                repository.GetLastNChecks(id);
+                repository.GetLastNChecks(sizeInt);
 
                 return SerializeHandler.SerializeMessage(checkList);
             }
@@ -51,10 +51,10 @@ namespace CheckServiceWCF
                 Logger.Log.Info(String.Format("Wrong id"));
             }
 
-            Logger.Log.Info(String.Format("Checks with id  {0} requested", id));
-            Console.WriteLine(String.Format("Checks with id  {0} requested", id));
+            Logger.Log.Info(String.Format("Last {0} Checks requested", sizeInt));
+            Console.WriteLine(String.Format("Last {0} Checks requested", sizeInt));
 
-            return id.ToString();
+            return size.ToString();
         }
 
     }
