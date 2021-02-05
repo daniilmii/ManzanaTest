@@ -1,5 +1,6 @@
 ﻿using CheckServiceWCF.Entities;
 using CheckServiceWCF.Handlers;
+using CheckServiceWCF.Interface_Repository;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,12 +18,23 @@ namespace CheckServiceWCF
     {
         static int filesCounter = 0;
 
+
+        static IRepository<CheckEntity> repository;
+
+        static CheckService() 
+        {
+            repository = new SQLCheckRepository();
+        }
         public void PostCheck()
         {
             string json = OperationContext.Current.RequestContext.RequestMessage.ToString();
             CheckEntity check = SerializeHandler.DeserializeFile<CheckEntity>(json);
+
+            repository.SaveCheck(check);
+
             Console.WriteLine(String.Format("№" + ++filesCounter + " - Recieved Json "));
         }
+
         public string GetChecks(string strId)
         {
             CheckEntityList checkList = null;
@@ -30,7 +42,7 @@ namespace CheckServiceWCF
             {
                 checkList = new CheckEntityList();
 
-                //запросил чеки по id
+                repository.GetLastNChecks(id);
 
                 return SerializeHandler.SerializeMessage(checkList);
             }

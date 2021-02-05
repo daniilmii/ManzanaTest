@@ -44,9 +44,10 @@ namespace CheckServiceWCF
             .AddJsonFile("conf.json", optional: true)
             .Build();
             Logger.InitLogger();
+            
             Configurations.Configuration = configuration;
             Configurations.ConfigLoader();
-
+          
             Uri baseAddress = new Uri("http://localhost:5778");
 
             

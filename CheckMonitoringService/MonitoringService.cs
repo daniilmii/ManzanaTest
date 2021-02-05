@@ -177,7 +177,7 @@ namespace CheckMonitoringService
                 if (Path.GetExtension(e.FullPath).Equals(".txt"))
                 {
 
-                    CheckEntity check = (FileHandler.DeserializeFile<CheckEntity>(e.FullPath));
+                    CheckEntity check = (SerializeHandler.DeserializeFile<CheckEntity>(e.FullPath));
 
                     RequestHandler.SendRequest(Configurations.CurrentConfig.HostIp, Configurations.CurrentConfig.HostPort, "/PostCheck", check);
                     File.Move(e.FullPath, UniqueFilePath(Configurations.CurrentConfig.CompleteFolderPath, e.Name));
