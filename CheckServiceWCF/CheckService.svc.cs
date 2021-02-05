@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.ServiceModel;
@@ -12,11 +13,23 @@ namespace CheckServiceWCF
     // NOTE: In order to launch WCF Test Client for testing this service, please select Service1.svc or Service1.svc.cs at the Solution Explorer and start debugging.
     public class CheckService : ICheckService
     {
-        public string SendCheck(string check)
+        static int filesCounter = 0;
+
+        public string SendCheck()
         {
-           // Logger.Log.Info(String.Format("Check {0} recieved", check));
-           // Console.WriteLine(String.Format("Check {0} recieved", check));
-            return check;
+           
+
+            string JSONstring = OperationContext.Current.RequestContext.RequestMessage.ToString();
+
+            Console.WriteLine(String.Format("№" + ++filesCounter + " - Recieved Json "));
+
+            return JSONstring ;
+
+
+
+
+
+            // return json;
         }
         //public string RequestChecks(int id) 
         //{

@@ -33,6 +33,8 @@ namespace CheckMonitoringService
                 CurrentConfig.CheckFolderPath = Configuration["ChecksFolderPath"];
                 CurrentConfig.GrabageFolderPath = Configuration["GarbageFolderPath"];
                 CurrentConfig.CompleteFolderPath = Configuration["CompleteFolderPath"];
+                CurrentConfig.HostIp = Configuration["HostIp"];
+                CurrentConfig.HostPort = Configuration["HostPort"];
             }
 
             catch (Exception ex)

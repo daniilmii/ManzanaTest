@@ -115,11 +115,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Client.cs" />
     <Compile Include="Configuration.cs" />
+    <Compile Include="Constants.cs" />
     <Compile Include="Entities\CheckBaseType.cs" />
     <Compile Include="Entities\CheckEntity.cs" />
     <Compile Include="Entities\ConfigEntity.cs" />
     <Compile Include="Handlers\FileHandler.cs" />
+    <Compile Include="Handlers\RequestHandler.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="MonitoringService.cs">
       <SubType>Component</SubType>
@@ -147,6 +150,9 @@
     <EmbeddedResource Include="ProjectInstaller.resx">
       <DependentUpon>ProjectInstaller.cs</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="NewFolder1\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

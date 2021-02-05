@@ -12,15 +12,15 @@ namespace CheckMonitoringService.Handlers
     class FileHandler
     {
 
-        public static string  ReadFile(string filePath) 
+        public static string ReadFile(string filePath)
         {
             using (var sr = new StreamReader(filePath))
             {
-               return sr.ReadToEnd();
+                return sr.ReadToEnd();
             }
-           
+
         }
-        public static T SerializeFile<T>(string filePath) where T : CheckBaseType
+        public static T DeserializeFile<T>(string filePath) where T : CheckBaseType
         {
 
             string fileInfo = ReadFile(filePath);
@@ -29,10 +29,15 @@ namespace CheckMonitoringService.Handlers
                 var obj = JsonConvert.DeserializeObject<T>(fileInfo);
                 return obj;
             }
-            else 
+            else
             {
                 throw new Exception("Empty file");
             }
+        }
+        public static string SerializeMessage(object obj)
+        { 
+            var res = JsonConvert.SerializeObject(obj);
+            return res;
         }
     }
 }

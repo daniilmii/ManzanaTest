@@ -19,9 +19,21 @@ namespace CheckMonitoringService
 {
     public partial class MonitoringService : ServiceBase
     {
+
+        public static int countOnCreated = 0;
+
+        public static int countMoveToComplete = 0;
+
+        public static int countMoveToGarbage = 0;
+
+        public static int countFailedMoveFiles = 0;
         List<FileSystemWatcher> watcherList;
         public MonitoringService()
         {
+
+
+
+
             InitializeComponent();
 
             watcherList = new List<FileSystemWatcher>();
@@ -103,6 +115,8 @@ namespace CheckMonitoringService
             SetServiceStatus(this.ServiceHandle, ref serviceStatus);
         }
 
+
+
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         private void FilesMonitoring()
         {
@@ -112,20 +126,21 @@ namespace CheckMonitoringService
 
                 // Watch for changes in LastAccess and LastWrite times, and
                 // the renaming of files or directories.
-                watcher.NotifyFilter = NotifyFilters.LastWrite |
+                watcher.NotifyFilter =
+                    //NotifyFilters.LastWrite |
                                        NotifyFilters.FileName |
-                                       NotifyFilters.DirectoryName |
-                                        NotifyFilters.LastAccess |
-                                        NotifyFilters.Attributes |
-                                        NotifyFilters.Size
+                                       NotifyFilters.DirectoryName 
+                                       // NotifyFilters.LastAccess 
+                                       // NotifyFilters.Attributes |
+                                       // NotifyFilters.Size
                                         ;
 
 
                 if (Directory.Exists(Configurations.CurrentConfig.CheckFolderPath))
                 {
+                    watcher.InternalBufferSize = 65536;
                     watcher.Path = Configurations.CurrentConfig.CheckFolderPath;
                     watcher.EnableRaisingEvents = true;
-                    watcher.IncludeSubdirectories = true;
                     watcher.Filter = "*.*";
                     watcher.Created += OnCreated;
 
@@ -153,6 +168,7 @@ namespace CheckMonitoringService
         }
         private static void OnCreated(object source, FileSystemEventArgs e)
         {
+            countOnCreated++;
 
             Logger.Log.Info(String.Format("Processing file in CheckFolder: {0} , {1}", e.FullPath, e.ChangeType));
 
@@ -161,12 +177,16 @@ namespace CheckMonitoringService
                 if (Path.GetExtension(e.FullPath).Equals(".txt"))
                 {
 
-                    CheckEntity check = (FileHandler.SerializeFile<CheckEntity>(e.FullPath));
-                                        
+                    CheckEntity check = (FileHandler.DeserializeFile<CheckEntity>(e.FullPath));
+
+                    RequestHandler.SendRequest(Configurations.CurrentConfig.HostIp, Configurations.CurrentConfig.HostPort, "/SendCheck", check);
                     File.Move(e.FullPath, UniqueFilePath(Configurations.CurrentConfig.CompleteFolderPath, e.Name));
+
+
                     Logger.Log.Info(String.Format("Move file to CompleteFolder: {0} , {1}", e.FullPath, e.ChangeType));
+                    Logger.Log.Info("CompleteCounter" + ++countMoveToComplete);
                 }
-                else 
+                else
                 {
                     throw new Exception("File format wrong");
                 }
@@ -177,16 +197,25 @@ namespace CheckMonitoringService
                 if (File.Exists(e.FullPath))
                 {
                     File.Move(e.FullPath, UniqueFilePath(Configurations.CurrentConfig.GrabageFolderPath, e.Name));
+
+
+                    Logger.Log.Error(String.Format("Move file to GarbageFolder: {0} , {1}", e.FullPath, e.ChangeType), ex);
+                    Logger.Log.Info("GarbageCounter" + ++countMoveToGarbage);
                 }
                 else if (Directory.Exists(e.FullPath))
                 {
                     Directory.Move(e.FullPath, UniqueFilePath(Configurations.CurrentConfig.GrabageFolderPath, e.Name));
+
+
+                    Logger.Log.Error(String.Format("Move file to GarbageFolder: {0} , {1}", e.FullPath, e.ChangeType), ex);
+                    Logger.Log.Info("GarbageCounter" + ++countMoveToGarbage);
                 }
-                else 
+                else
                 {
+                    Logger.Log.Info("FailedCounter" + ++countFailedMoveFiles);
                     throw new Exception(String.Format("Unexpected location of moving file {0} ", e.FullPath));
                 }
-                Logger.Log.Error(String.Format("Move file to GarbageFolder: {0} , {1}", e.FullPath, e.ChangeType), ex);
+
             }
         }
 
