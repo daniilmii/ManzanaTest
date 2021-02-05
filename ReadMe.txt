@@ -24,4 +24,4 @@
 
 - В сервисе есть 2 метода:
   void PostCheck(); получает корректный чек от службы и заливает в базу 
-  string GetChecks(string id); выдает последние n - чеков из базы 
+  string GetChecks(string count); выдает последние n - чеков из базы 
