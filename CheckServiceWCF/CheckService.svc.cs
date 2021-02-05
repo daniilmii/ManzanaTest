@@ -10,7 +10,6 @@ using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Text;
-
 using System.Xml;
 
 namespace CheckServiceWCF
@@ -28,7 +27,6 @@ namespace CheckServiceWCF
         public void PostCheck()
         {
             string xml = OperationContext.Current.RequestContext.RequestMessage.ToString();
-           
             XmlDocument doc = new XmlDocument();
             
             doc.LoadXml(xml);

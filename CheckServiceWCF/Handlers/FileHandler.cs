@@ -19,6 +19,14 @@ namespace CheckServiceWCF.Handlers
             }
 
         }
+        public static void WriteFile(string filePath, string str)
+        {
+            using (var sw = new StreamWriter(filePath))
+            {
+                sw.WriteLine(str);
+            }
+
+        }
 
     }
 }

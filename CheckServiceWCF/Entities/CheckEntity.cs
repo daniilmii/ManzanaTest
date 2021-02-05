@@ -5,7 +5,7 @@ using System.Web;
 
 namespace CheckServiceWCF.Entities
 {
-    public class CheckEntity:CheckBaseType
+    public class CheckEntity : CheckBaseType
     {
         public Guid Id { get; set; }
         public string Number { get; set; }

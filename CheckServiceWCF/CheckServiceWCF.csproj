@@ -147,6 +147,7 @@
     <Compile Include="Handlers\FileHandler.cs" />
     <Compile Include="Handlers\RequestHandler.cs" />
     <Compile Include="Handlers\SerializeHandler.cs" />
+    <Compile Include="Interface Repository\FakeSQLCheckRepository.cs" />
     <Compile Include="Interface Repository\IRepository .cs" />
     <Compile Include="Interface Repository\SQLCheckRepository.cs" />
     <Compile Include="Logger.cs" />
