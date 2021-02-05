@@ -11,7 +11,7 @@ using System.Text;
 
 namespace CheckServiceWCF
 {
-    // NOTE: You can use the "Rename" command on the "Refactor" menu to change the interface name "IService1" in both code and config file together.
+   
     [ServiceContract]
     public interface ICheckService
     {
@@ -21,16 +21,17 @@ namespace CheckServiceWCF
               Method = "POST",
               RequestFormat = WebMessageFormat.Json,
               ResponseFormat = WebMessageFormat.Json,
-              UriTemplate = "/SendCheck",
+              UriTemplate = "/PostCheck",
               BodyStyle = WebMessageBodyStyle.WrappedRequest
                )]
        
-        string SendCheck();
+        void PostCheck();
 
-        //[OperationContract]
-        //string RequestChecks(int id);
+        [OperationContract]
+        [WebGet(UriTemplate ="/GetChecks/{id}" )]
+        string GetChecks(string id);
 
-        // TODO: Add your service operations here
+        
     }
 
     class Program
@@ -48,7 +49,7 @@ namespace CheckServiceWCF
 
             Uri baseAddress = new Uri("http://localhost:5778");
 
-            // Create the ServiceHost.
+            
             using (ServiceHost host = new ServiceHost(typeof(CheckService), baseAddress))
             {
                
@@ -58,7 +59,7 @@ namespace CheckServiceWCF
                 Console.WriteLine("Press <Enter> to stop the service.");
                 Console.ReadLine();
 
-                // Close the ServiceHost.
+               
                 host.Close();
             }
 

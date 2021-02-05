@@ -1,6 +1,4 @@
-﻿using CheckMonitoringService.Entities;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace CheckMonitoringService.Handlers
+namespace CheckServiceWCF.Handlers
 {
     static class FileHandler
     {

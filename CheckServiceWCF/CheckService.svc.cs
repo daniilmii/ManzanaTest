@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CheckServiceWCF.Entities;
+using CheckServiceWCF.Handlers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,28 +17,33 @@ namespace CheckServiceWCF
     {
         static int filesCounter = 0;
 
-        public string SendCheck()
+        public void PostCheck()
         {
-           
-
-            string JSONstring = OperationContext.Current.RequestContext.RequestMessage.ToString();
-
+            string json = OperationContext.Current.RequestContext.RequestMessage.ToString();
+            CheckEntity check = SerializeHandler.DeserializeFile<CheckEntity>(json);
             Console.WriteLine(String.Format("№" + ++filesCounter + " - Recieved Json "));
-
-            return JSONstring ;
-
-
-
-
-
-            // return json;
         }
-        //public string RequestChecks(int id) 
-        //{
-        //    Logger.Log.Info(String.Format("Checks with id  {0} requested", id));
-        //    Console.WriteLine(String.Format("Checks with id  {0} requested", id));
-        //    return id.ToString();
-        //}
+        public string GetChecks(string strId)
+        {
+            CheckEntityList checkList = null;
+            if (Int32.TryParse(strId, out int id))
+            {
+                checkList = new CheckEntityList();
+
+                //запросил чеки по id
+
+                return SerializeHandler.SerializeMessage(checkList);
+            }
+            else
+            {
+                Logger.Log.Info(String.Format("Wrong id"));
+            }
+
+            Logger.Log.Info(String.Format("Checks with id  {0} requested", id));
+            Console.WriteLine(String.Format("Checks with id  {0} requested", id));
+
+            return id.ToString();
+        }
 
     }
 }

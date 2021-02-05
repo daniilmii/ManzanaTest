@@ -6,7 +6,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CheckMonitoringService.Handlers
+namespace CheckServiceWCF.Handlers
 {
     static class RequestHandler
     {

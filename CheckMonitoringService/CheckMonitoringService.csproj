@@ -123,6 +123,7 @@
     <Compile Include="Entities\ConfigEntity.cs" />
     <Compile Include="Handlers\FileHandler.cs" />
     <Compile Include="Handlers\RequestHandler.cs" />
+    <Compile Include="Handlers\SerializeHandler.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="MonitoringService.cs">
       <SubType>Component</SubType>
@@ -151,8 +152,6 @@
       <DependentUpon>ProjectInstaller.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="NewFolder1\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
