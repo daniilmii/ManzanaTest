@@ -24,14 +24,15 @@ namespace CheckMonitoringService.Handlers
         {
 
             string fileInfo = ReadFile(filePath);
-            if (!string.IsNullOrEmpty(fileInfo))
+            if (!String.IsNullOrEmpty(fileInfo))
             {
                 var obj = JsonConvert.DeserializeObject<T>(fileInfo);
                 return obj;
             }
-
-            return null;
-
+            else 
+            {
+                throw new Exception("Empty file");
+            }
         }
     }
 }

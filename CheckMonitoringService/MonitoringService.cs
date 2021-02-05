@@ -91,10 +91,12 @@ namespace CheckMonitoringService
             serviceStatus.dwCurrentState = ServiceState.SERVICE_START_PENDING;
             serviceStatus.dwWaitHint = 100000;
             SetServiceStatus(this.ServiceHandle, ref serviceStatus);
+
+
             Logger.InitLogger();
             Configurations.ConfigLoader();
-
             FilesMonitoring();
+
 
             // Update the service state to Running.
             serviceStatus.dwCurrentState = ServiceState.SERVICE_RUNNING;
@@ -145,41 +147,52 @@ namespace CheckMonitoringService
                 Logger.Log.Error("Monitoring files failed", ex);
             }
         }
+        private static string UniqueFilePath(string FolderPath, string FilefullName)
+        {
+            return String.Format(FolderPath + "/" + (DateTime.UtcNow).ToString("dd_MM-HH_mm_ss") + FilefullName);
+        }
         private static void OnCreated(object source, FileSystemEventArgs e)
         {
 
-            Logger.Log.Info(String.Format("Add File to CheckFolder: {0} , {1}", e.FullPath, e.ChangeType));
+            Logger.Log.Info(String.Format("Processing file in CheckFolder: {0} , {1}", e.FullPath, e.ChangeType));
 
             try
             {
+                if (Path.GetExtension(e.FullPath).Equals(".txt"))
+                {
+
+                    CheckEntity check = (FileHandler.SerializeFile<CheckEntity>(e.FullPath));
+                                        
+                    File.Move(e.FullPath, UniqueFilePath(Configurations.CurrentConfig.CompleteFolderPath, e.Name));
+                    Logger.Log.Info(String.Format("Move file to CompleteFolder: {0} , {1}", e.FullPath, e.ChangeType));
+                }
+                else 
+                {
+                    throw new Exception("File format wrong");
+                }
 
             }
-            finally 
+            catch (Exception ex)
             {
-
+                if (File.Exists(e.FullPath))
+                {
+                    File.Move(e.FullPath, UniqueFilePath(Configurations.CurrentConfig.GrabageFolderPath, e.Name));
+                }
+                else if (Directory.Exists(e.FullPath))
+                {
+                    Directory.Move(e.FullPath, UniqueFilePath(Configurations.CurrentConfig.GrabageFolderPath, e.Name));
+                }
+                else 
+                {
+                    throw new Exception(String.Format("Unexpected location of moving file {0} ", e.FullPath));
+                }
+                Logger.Log.Error(String.Format("Move file to GarbageFolder: {0} , {1}", e.FullPath, e.ChangeType), ex);
             }
-            if (Path.GetExtension(e.FullPath).Equals(".txt"))
-            {
-
-                CheckEntity check = FileHandler.SerializeFile<CheckEntity>(e.FullPath);
-
-                string d = String.Format(Configurations.CurrentConfig.CompleteFolderPath + "/" + (DateTime.UtcNow).ToString("dd_MM-HH_mm_ss") + e.Name);
-                File.Move(e.FullPath, d);
-            }
-            else
-            {
-                string d = String.Format(Configurations.CurrentConfig.GrabageFolderPath + "/" + (DateTime.UtcNow).ToString("dd_MM-HH_mm_ss") + e.Name);
-                File.Move(e.FullPath, d);
-            }
-
-
-
-            
         }
 
 
 
-       
+
 
         [DllImport("advapi32.dll", SetLastError = true)]
         private static extern bool SetServiceStatus(System.IntPtr handle, ref ServiceStatus serviceStatus);
