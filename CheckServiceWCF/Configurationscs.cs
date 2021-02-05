@@ -35,13 +35,13 @@ namespace CheckServiceWCF
 
                
                 CurrentConfig.ConnectionString = Configuration["ConnectionString"];
-                CurrentConfig.HostIp = Configuration["HostIp"];
-                CurrentConfig.HostPort = Configuration["HostPort"];
+                CurrentConfig.Ip = Configuration["Ip"];
+                CurrentConfig.Port = Configuration["Port"];
 
                 
                 if ((CurrentConfig.ConnectionString.Equals(""))) configCorrect = false;
-                else if (!Regex.IsMatch(CurrentConfig.HostIp, @"^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")) configCorrect = false;
-                else if (!UInt16.TryParse(CurrentConfig.HostPort, out ushort port)) configCorrect = false;
+                else if (!Regex.IsMatch(CurrentConfig.Ip, @"^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")) configCorrect = false;
+                else if (!UInt16.TryParse(CurrentConfig.Port, out ushort port)) configCorrect = false;
 
 
 

@@ -48,7 +48,7 @@ namespace CheckServiceWCF
             Configurations.Configuration = configuration;
             Configurations.ConfigLoader();
           
-            Uri baseAddress = new Uri(String.Format("http://{0}:{1}", Configurations.CurrentConfig.HostIp, Configurations.CurrentConfig.HostPort));
+            Uri baseAddress = new Uri(String.Format("http://{0}:{1}", Configurations.CurrentConfig.Ip, Configurations.CurrentConfig.Port));
 
             
             using (ServiceHost host = new ServiceHost(typeof(CheckService), baseAddress))

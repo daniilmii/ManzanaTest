@@ -1,7 +1,7 @@
 {
 	"ConnectionString" : "data source=some_server;initial catalog=some_db;integrated security=SSPI;Application Name=TestApp",
-	"HostIp": "127.0.0.1",
-	"HostPort": "5779"
+	"Ip": "127.0.0.1",
+	"Port": "5779"
 }
 
 
