@@ -19,24 +19,15 @@ namespace CheckMonitoringService
 {
     public partial class MonitoringService : ServiceBase
     {
+        [DllImport("advapi32.dll", SetLastError = true)]
+        private static extern bool SetServiceStatus(System.IntPtr handle, ref ServiceStatus serviceStatus);
+        // List<FileSystemWatcher> watcherList;
 
-        public static int countOnCreated = 0;
-
-        public static int countMoveToComplete = 0;
-
-        public static int countMoveToGarbage = 0;
-
-        public static int countFailedMoveFiles = 0;
-        List<FileSystemWatcher> watcherList;
         public MonitoringService()
         {
-
-
-
-
             InitializeComponent();
 
-            watcherList = new List<FileSystemWatcher>();
+            //watcherList = new List<FileSystemWatcher>();
 
             monitoringLog = new System.Diagnostics.EventLog();
             if (!System.Diagnostics.EventLog.SourceExists("MonitoringServiceSource"))
@@ -46,9 +37,6 @@ namespace CheckMonitoringService
             }
             monitoringLog.Source = "MonitoringServiceSource";
             monitoringLog.Log = "MonitoringServiceLog";
-
-
-
 
             IConfigurationRoot configuration = new ConfigurationBuilder()
             .AddJsonFile("conf.json", optional: true)
@@ -62,11 +50,24 @@ namespace CheckMonitoringService
             Console.ReadLine();
             this.OnStop();
         }
-
-
         protected override void OnStart(string[] args)
         {
-            Main(args);
+            // Update the service state to Start Pending.
+            ServiceStatus serviceStatus = new ServiceStatus();
+            serviceStatus.dwCurrentState = ServiceState.SERVICE_START_PENDING;
+            serviceStatus.dwWaitHint = 100000;
+            SetServiceStatus(this.ServiceHandle, ref serviceStatus);
+
+
+            Logger.InitLogger();
+            Configurations.ConfigLoader();
+            AppDomain.CurrentDomain.ProcessExit += (s, e) => Logger.Log.Info("Process exiting");
+            StartMonitoring();
+
+
+            // Update the service state to Running.
+            serviceStatus.dwCurrentState = ServiceState.SERVICE_RUNNING;
+            SetServiceStatus(this.ServiceHandle, ref serviceStatus);
         }
 
         protected override void OnStop()
@@ -79,152 +80,21 @@ namespace CheckMonitoringService
 
             monitoringLog.WriteEntry("In OnStop.");
 
-            foreach (var watcher in watcherList)
-            {
-                watcher.EnableRaisingEvents = false;
+            //foreach (var watcher in watcherList)
+            //{
+            //    watcher.EnableRaisingEvents = false;
 
-                watcher.Dispose();
-            }
+            //    watcher.Dispose();
+            //}
 
-            watcherList.Clear();
-
-
+            //watcherList.Clear();
 
             // Update the service state to Stopped.
             serviceStatus.dwCurrentState = ServiceState.SERVICE_STOPPED;
             SetServiceStatus(this.ServiceHandle, ref serviceStatus);
         }
 
-
-        public void Main(string[] arg)
-        {
-            // Update the service state to Start Pending.
-            ServiceStatus serviceStatus = new ServiceStatus();
-            serviceStatus.dwCurrentState = ServiceState.SERVICE_START_PENDING;
-            serviceStatus.dwWaitHint = 100000;
-            SetServiceStatus(this.ServiceHandle, ref serviceStatus);
-
-
-            Logger.InitLogger();
-            Configurations.ConfigLoader();
-            FilesMonitoring();
-
-
-            // Update the service state to Running.
-            serviceStatus.dwCurrentState = ServiceState.SERVICE_RUNNING;
-            SetServiceStatus(this.ServiceHandle, ref serviceStatus);
-        }
-
-
-
-        [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
-        private void FilesMonitoring()
-        {
-            try
-            {
-                FileSystemWatcher watcher = new FileSystemWatcher();
-
-                // Watch for changes in LastAccess and LastWrite times, and
-                // the renaming of files or directories.
-                watcher.NotifyFilter =
-                    //NotifyFilters.LastWrite |
-                                       NotifyFilters.FileName |
-                                       NotifyFilters.DirectoryName 
-                                       // NotifyFilters.LastAccess 
-                                       // NotifyFilters.Attributes |
-                                       // NotifyFilters.Size
-                                        ;
-
-
-                if (Directory.Exists(Configurations.CurrentConfig.CheckFolderPath))
-                {
-                    watcher.InternalBufferSize = 65536;
-                    watcher.Path = Configurations.CurrentConfig.CheckFolderPath;
-                    watcher.EnableRaisingEvents = true;
-                    watcher.Filter = "*.*";
-                    watcher.Created += OnCreated;
-
-
-
-                    watcherList.Add(watcher);
-
-                    Logger.Log.Info(String.Format("Monitoring files with extension({0}) in the folder({1})", watcher.Filter, watcher.Path));
-
-                }
-                else
-                {
-                    throw new Exception(String.Format("CheckFolder not found ({0})", Configurations.CurrentConfig.CheckFolderPath));
-                }
-
-            }
-            catch (Exception ex)
-            {
-                Logger.Log.Error("Monitoring files failed", ex);
-            }
-        }
-        private static string UniqueFilePath(string FolderPath, string FilefullName)
-        {
-            return String.Format(FolderPath + "/" + (DateTime.UtcNow).ToString("dd_MM-HH_mm_ss") + FilefullName);
-        }
-        private static void OnCreated(object source, FileSystemEventArgs e)
-        {
-            countOnCreated++;
-
-            Logger.Log.Info(String.Format("Processing file in CheckFolder: {0} , {1}", e.FullPath, e.ChangeType));
-
-            try
-            {
-                if (Path.GetExtension(e.FullPath).Equals(".txt"))
-                {
-
-                    CheckEntity check = (SerializeHandler.DeserializeFile<CheckEntity>(e.FullPath));
-
-                    RequestHandler.SendRequest(Configurations.CurrentConfig.HostIp, Configurations.CurrentConfig.HostPort, "/PostCheck", check);
-                    File.Move(e.FullPath, UniqueFilePath(Configurations.CurrentConfig.CompleteFolderPath, e.Name));
-
-
-                    Logger.Log.Info(String.Format("Move file to CompleteFolder: {0} , {1}", e.FullPath, e.ChangeType));
-                    Logger.Log.Info("CompleteCounter" + ++countMoveToComplete);
-                }
-                else
-                {
-                    throw new Exception("File format wrong");
-                }
-
-            }
-            catch (Exception ex)
-            {
-                if (File.Exists(e.FullPath))
-                {
-                    File.Move(e.FullPath, UniqueFilePath(Configurations.CurrentConfig.GrabageFolderPath, e.Name));
-
-
-                    Logger.Log.Error(String.Format("Move file to GarbageFolder: {0} , {1}", e.FullPath, e.ChangeType), ex);
-                    Logger.Log.Info("GarbageCounter" + ++countMoveToGarbage);
-                }
-                else if (Directory.Exists(e.FullPath))
-                {
-                    Directory.Move(e.FullPath, UniqueFilePath(Configurations.CurrentConfig.GrabageFolderPath, e.Name));
-
-
-                    Logger.Log.Error(String.Format("Move file to GarbageFolder: {0} , {1}", e.FullPath, e.ChangeType), ex);
-                    Logger.Log.Info("GarbageCounter" + ++countMoveToGarbage);
-                }
-                else
-                {
-                    Logger.Log.Info("FailedCounter" + ++countFailedMoveFiles);
-                    throw new Exception(String.Format("Unexpected location of moving file {0} ", e.FullPath));
-                }
-
-            }
-        }
-
-
-
-
-
-        [DllImport("advapi32.dll", SetLastError = true)]
-        private static extern bool SetServiceStatus(System.IntPtr handle, ref ServiceStatus serviceStatus);
+       
         public enum ServiceState
         {
             SERVICE_STOPPED = 0x00000001,
@@ -248,6 +118,132 @@ namespace CheckMonitoringService
             public int dwWaitHint;
         };
 
+        public void StartMonitoring()
+        {
+            Thread thread = new Thread(MonitoringDirectory);
+            thread.Start();
+            //MonitoringDirectoryWeak();
+        }
 
+        public void MonitoringDirectory()
+        {
+            if (Directory.Exists(Configurations.CurrentConfig.CheckFolderPath))
+            {
+                Logger.Log.Error(String.Format("Start monitoring directory {0} ...", Configurations.CurrentConfig.CheckFolderPath));
+                while (true)
+                {
+                    IEnumerable<string> allfiles = Directory.EnumerateFiles(Configurations.CurrentConfig.CheckFolderPath);
+
+                    foreach (string filename in allfiles)
+                    {
+                        FilesProcessor(filename, Path.GetFileName(filename));
+                    }
+                    Thread.Sleep(1000);
+                }
+            }
+            else 
+            {
+                Logger.Log.Error(String.Format("Directory for monitoring not found: {0} , ", Configurations.CurrentConfig.CheckFolderPath));
+                Environment.Exit(0);
+            }
+              
+
+        }
+        private static string UniqueFilePath(string folderPath, string filefullName)
+        {
+            return String.Format(folderPath + "/" + (DateTime.UtcNow).ToString("dd_MM-HH_mm_ss") + filefullName);
+        }
+        private static void FilesProcessor(string fullPath, string fileName)
+        {
+            Logger.Log.Info(String.Format("Processing file in CheckFolder: {0}", fullPath));
+
+            try
+            {
+                if (Path.GetExtension(fullPath).Equals(".txt"))
+                {
+
+                    CheckEntity check = (SerializeHandler.DeserializeFile<CheckEntity>(fullPath));
+
+                    //RequestHandler.SendRequest(Configurations.CurrentConfig.HostIp, Configurations.CurrentConfig.HostPort, "/PostCheck", check);
+                    File.Move(fullPath, UniqueFilePath(Configurations.CurrentConfig.CompleteFolderPath, fileName));
+
+
+                    Logger.Log.Info(String.Format("Move file to CompleteFolder: {0}", fullPath));
+                }
+                else
+                {
+                    throw new Exception("File format wrong");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                if (File.Exists(fullPath))
+                {
+                    File.Move(fullPath, UniqueFilePath(Configurations.CurrentConfig.GarbageFolderPath, fileName));
+
+
+                    Logger.Log.Error(String.Format("Move file to GarbageFolder: {0}", fullPath), ex);
+                }
+                else if (Directory.Exists(fullPath))
+                {
+                    Directory.Move(fullPath, UniqueFilePath(Configurations.CurrentConfig.GarbageFolderPath, fileName));
+
+
+                    Logger.Log.Error(String.Format("Move file to GarbageFolder: {0} , ", fullPath), ex);
+                }
+                else
+                {
+                    throw new Exception(String.Format("Unexpected location of moving file {0} ", fullPath));
+                }
+
+            }
+        }
+
+
+        /*
+
+      private static void OnCreated(object source, FileSystemEventArgs e)
+      {
+          FilesProcessor(e.FullPath, e.Name);
+      }
+
+       [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
+       private void MonitoringDirectoryWeak()
+       {
+           try
+           {
+               FileSystemWatcher watcher = new FileSystemWatcher();
+
+
+               watcher.NotifyFilter = NotifyFilters.FileName | NotifyFilters.DirectoryName;
+
+               if (Directory.Exists(Configurations.CurrentConfig.CheckFolderPath))
+               {
+                   watcher.InternalBufferSize = 65536;
+                   watcher.Path = Configurations.CurrentConfig.CheckFolderPath;
+                   watcher.EnableRaisingEvents = true;
+                   watcher.Filter = "*.*";
+                   watcher.Created += OnCreated;
+
+
+
+                   watcherList.Add(watcher);
+
+                   Logger.Log.Info(String.Format("Monitoring files with extension({0}) in the folder({1})", watcher.Filter, watcher.Path));
+
+               }
+               else
+               {
+                   throw new Exception(String.Format("CheckFolder not found ({0})", Configurations.CurrentConfig.CheckFolderPath));
+               }
+
+           }
+           catch (Exception ex)
+           {
+               Logger.Log.Error("Monitoring files failed", ex);
+           }
+       }
+      */
     }
 }

@@ -115,9 +115,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Client.cs" />
     <Compile Include="Configuration.cs" />
-    <Compile Include="Constants.cs" />
     <Compile Include="Entities\CheckBaseType.cs" />
     <Compile Include="Entities\CheckEntity.cs" />
     <Compile Include="Entities\ConfigEntity.cs" />

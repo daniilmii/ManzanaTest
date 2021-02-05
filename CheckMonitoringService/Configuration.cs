@@ -31,7 +31,7 @@ namespace CheckMonitoringService
             try
             {
                 CurrentConfig.CheckFolderPath = Configuration["ChecksFolderPath"];
-                CurrentConfig.GrabageFolderPath = Configuration["GarbageFolderPath"];
+                CurrentConfig.GarbageFolderPath = Configuration["GarbageFolderPath"];
                 CurrentConfig.CompleteFolderPath = Configuration["CompleteFolderPath"];
                 CurrentConfig.HostIp = Configuration["HostIp"];
                 CurrentConfig.HostPort = Configuration["HostPort"];
@@ -40,6 +40,7 @@ namespace CheckMonitoringService
             catch (Exception ex)
             {
                 Logger.Log.Error("ConfigLoader failed", ex);
+                Environment.Exit(0);
             }
         }
 
