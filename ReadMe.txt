@@ -1,27 +1,56 @@
-В репозитории 2 сервиса.
+Р’ СЂРµРїРѕР·РёС‚РѕСЂРёРё 2 СЃРµСЂРІРёСЃР°.
 
 1)CheckMonitoringService.
- Windows служба, которая мониторит указанную в конфиге (conf.json) директорию - CheckFolderPath.
+ Windows СЃР»СѓР¶Р±Р°, РєРѕС‚РѕСЂР°СЏ РјРѕРЅРёС‚РѕСЂРёС‚ СѓРєР°Р·Р°РЅРЅСѓСЋ РІ РєРѕРЅС„РёРіРµ (conf.json) РґРёСЂРµРєС‚РѕСЂРёСЋ - CheckFolderPath.
 
-- Система проверяет директории "ChecksFolderPath","GarbageFolderPath","CompleteFolderPath" на существование. 
-Если какие-либо пути к директориям некорректные или не существуют, служба не запустится.
-Также проверяются все остальные поля в конфиге на корректность, если хотябы одно некорректное, то  служба не запустится.
+- РЎРёСЃС‚РµРјР° РїСЂРѕРІРµСЂСЏРµС‚ РґРёСЂРµРєС‚РѕСЂРёРё "ChecksFolderPath","GarbageFolderPath","CompleteFolderPath" РЅР° СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ. 
+Р•СЃР»Рё РєР°РєРёРµ-Р»РёР±Рѕ РїСѓС‚Рё Рє РґРёСЂРµРєС‚РѕСЂРёСЏРј РЅРµРєРѕСЂСЂРµРєС‚РЅС‹Рµ РёР»Рё РЅРµ СЃСѓС‰РµСЃС‚РІСѓСЋС‚, СЃР»СѓР¶Р±Р° РЅРµ Р·Р°РїСѓСЃС‚РёС‚СЃСЏ.
+РўР°РєР¶Рµ РїСЂРѕРІРµСЂСЏСЋС‚СЃСЏ РІСЃРµ РѕСЃС‚Р°Р»СЊРЅС‹Рµ РїРѕР»СЏ РІ РєРѕРЅС„РёРіРµ РЅР° РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚СЊ, РµСЃР»Рё С…РѕС‚СЏР±С‹ РѕРґРЅРѕ РЅРµРєРѕСЂСЂРµРєС‚РЅРѕРµ, С‚Рѕ  СЃР»СѓР¶Р±Р° РЅРµ Р·Р°РїСѓСЃС‚РёС‚СЃСЏ.
 
-- Файлы в директории проверяются на расширения. Обрабатываются только (.txt). Все остальные файлы улетают в папку Garbage.
-Корректные файлы отправляются в CheckServiceWCF методом (/PostCheck) по адресу указанному в конфиге - HostIp:HostPort.
-Если запрос выполнился без ошибок, то файл перемещается в папку CompleteFolderPath.
-Если с ошибками , файл перемещается в GarbageFolderPath.
+- Р¤Р°Р№Р»С‹ РІ РґРёСЂРµРєС‚РѕСЂРёРё РїСЂРѕРІРµСЂСЏСЋС‚СЃСЏ РЅР° СЂР°СЃС€РёСЂРµРЅРёСЏ. РћР±СЂР°Р±Р°С‚С‹РІР°СЋС‚СЃСЏ С‚РѕР»СЊРєРѕ (.txt). Р’СЃРµ РѕСЃС‚Р°Р»СЊРЅС‹Рµ С„Р°Р№Р»С‹ СѓР»РµС‚Р°СЋС‚ РІ РїР°РїРєСѓ Garbage.
+РљРѕСЂСЂРµРєС‚РЅС‹Рµ С„Р°Р№Р»С‹ РѕС‚РїСЂР°РІР»СЏСЋС‚СЃСЏ РІ CheckServiceWCF РјРµС‚РѕРґРѕРј (/PostCheck) РїРѕ Р°РґСЂРµСЃСѓ СѓРєР°Р·Р°РЅРЅРѕРјСѓ РІ РєРѕРЅС„РёРіРµ - HostIp:HostPort.
+Р•СЃР»Рё Р·Р°РїСЂРѕСЃ РІС‹РїРѕР»РЅРёР»СЃСЏ Р±РµР· РѕС€РёР±РѕРє, С‚Рѕ С„Р°Р№Р» РїРµСЂРµРјРµС‰Р°РµС‚СЃСЏ РІ РїР°РїРєСѓ CompleteFolderPath.
+Р•СЃР»Рё СЃ РѕС€РёР±РєР°РјРё , С„Р°Р№Р» РїРµСЂРµРјРµС‰Р°РµС‚СЃСЏ РІ GarbageFolderPath.
 
--Службу можно запускать для отладки в консоли. По нажатию на любую клавишу, она завершится.
+-РЎР»СѓР¶Р±Сѓ РјРѕР¶РЅРѕ Р·Р°РїСѓСЃРєР°С‚СЊ РґР»СЏ РѕС‚Р»Р°РґРєРё РІ РєРѕРЅСЃРѕР»Рё. РџРѕ РЅР°Р¶Р°С‚РёСЋ РЅР° Р»СЋР±СѓСЋ РєР»Р°РІРёС€Сѓ, РѕРЅР° Р·Р°РІРµСЂС€РёС‚СЃСЏ.
 
--В сервисе есть другой метод "MonitoringDirectoryWeak()" с событием OnCreated для мониторинга дериктории, но у него есть ограничения, которые могут привести к неправильной работе системы при большом количестве файлов, 
-поэтому был реализован метод MonitoringDirectory().
+-Р’ СЃРµСЂРІРёСЃРµ РµСЃС‚СЊ РґСЂСѓРіРѕР№ РјРµС‚РѕРґ "MonitoringDirectoryWeak()" СЃ СЃРѕР±С‹С‚РёРµРј OnCreated РґР»СЏ РјРѕРЅРёС‚РѕСЂРёРЅРіР° РґРµСЂРёРєС‚РѕСЂРёРё, РЅРѕ Сѓ РЅРµРіРѕ РµСЃС‚СЊ РѕРіСЂР°РЅРёС‡РµРЅРёСЏ, РєРѕС‚РѕСЂС‹Рµ РјРѕРіСѓС‚ РїСЂРёРІРµСЃС‚Рё Рє РЅРµРїСЂР°РІРёР»СЊРЅРѕР№ СЂР°Р±РѕС‚Рµ СЃРёСЃС‚РµРјС‹ РїСЂРё Р±РѕР»СЊС€РѕРј РєРѕР»РёС‡РµСЃС‚РІРµ С„Р°Р№Р»РѕРІ, 
+РїРѕСЌС‚РѕРјСѓ Р±С‹Р» СЂРµР°Р»РёР·РѕРІР°РЅ РјРµС‚РѕРґ MonitoringDirectory().
 
 2)CheckServiceWCF
 
--Также выполняется проверка конфигов и сервис не запускается в случае некорректых данных
+-РўР°РєР¶Рµ РІС‹РїРѕР»РЅСЏРµС‚СЃСЏ РїСЂРѕРІРµСЂРєР° РєРѕРЅС„РёРіРѕРІ Рё СЃРµСЂРІРёСЃ РЅРµ Р·Р°РїСѓСЃРєР°РµС‚СЃСЏ РІ СЃР»СѓС‡Р°Рµ РЅРµРєРѕСЂСЂРµРєС‚С‹С… РґР°РЅРЅС‹С…
 
 
-- В сервисе есть 2 метода:
-  void PostCheck(); получает корректный чек от службы и заливает в базу 
-  string GetChecks(string count); выдает последние n - чеков из базы 
+- Р’ СЃРµСЂРІРёСЃРµ РµСЃС‚СЊ 2 РјРµС‚РѕРґР°:
+  void PostCheck(); РїРѕР»СѓС‡Р°РµС‚ РєРѕСЂСЂРµРєС‚РЅС‹Р№ С‡РµРє РѕС‚ СЃР»СѓР¶Р±С‹ Рё Р·Р°Р»РёРІР°РµС‚ РІ Р±Р°Р·Сѓ 
+  string GetChecks(string count); РІС‹РґР°РµС‚ РїРѕСЃР»РµРґРЅРёРµ n - С‡РµРєРѕРІ РёР· Р±Р°Р·С‹ 
+
+//English version
+
+There are 2 services in the repository.
+1) CheckMonitoringService.
+ Windows service that monitors the directory specified in the config (conf.json) - CheckFolderPath.
+
+- The system checks the "ChecksFolderPath", "GarbageFolderPath", "CompleteFolderPath" directories for existence.
+If any directory paths are invalid or do not exist, the service will not start.
+Also, all other fields in the config are checked for correctness, if at least one is incorrect, then the service will not start.
+
+- Files in the directory are checked for extensions. Only (.txt) are processed. All other files go to the Garbage folder.
+Correct files are sent to CheckServiceWCF using the (/ PostCheck) method at the address specified in the config - HostIp: HostPort.
+If the request was completed without errors, then the file is moved to the CompleteFolderPath folder.
+If it fails, the file is moved to the GarbageFolderPath.
+
+-The service can be started for debugging in the console. By pressing any key, it will end.
+
+-The service has another method "MonitoringDirectoryWeak ()" with the OnCreated event to monitor the directory, but it has limitations that can lead to incorrect system operation with a large number of files,
+therefore the MonitoringDirectory () method was implemented.
+
+2) CheckServiceWCF
+
+-Also, the configs are checked and the service does not start in case of incorrect data
+
+
+- The service has 2 methods:
+  void PostCheck (); receives the correct check from the service and uploads it to the database
+  string GetChecks (string count); issues the last n - checks from the database
